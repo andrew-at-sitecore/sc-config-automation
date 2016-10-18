@@ -62,6 +62,44 @@ function Get-BaseConfigFileName {
     return $fileNameElements[0..$cutoffElementIndex] -join '.'
 }
 
+function Get-MatchingConfigFile {
+    param (
+        $Webroot,
+        [string]$ManifestConfigFilePath
+    )
+
+    $configFileName = split-path -Path $ManifestConfigFilePath -Leaf
+    $configFileRelativePath = split-path -Path $ManifestConfigFilePath -Parent
+
+    $configFileBaseName = Get-BaseConfigFileName -ConfigFileName $configFileName
+
+    # A bit of trickery to
+    #   - remove '\website' or 'website' entry from the manifest ( since the script operates in the context of webroot folder )
+    #   - add '.*' to config file base name ( to get file system search pattern )
+    # As a result we end up with '\relative\path\file.base.name.*' ( so that later on we can get all files from file system, get their base names and fetch the one that corresponds to the manifest entry )
+    $configFileBaseRelativePath = Join-Path -Path ($configFileRelativePath -replace '^\\?website','') -ChildPath ( "{0}.*" -f $configFileBaseName )
+
+    $configFileBaseFullPath = Join-Path -Path $Webroot -ChildPath $configFileBaseRelativePath
+
+    # Now we try to match the config file from the manifest to the actual config file by comparing their base names
+    $matchedConfigFile = $null
+    foreach ( $candidateConfigFile in (gci $configFileBaseFullPath)) {
+        $candidateFileName = split-path -Path $candidateConfigFile -Leaf
+        $candidateBaseFileName = Get-BaseConfigFileName -ConfigFileName $candidateFileName
+
+        if ($candidateBaseFileName.ToLower() -eq $configFileBaseName.ToLower()) {
+            #The match had been found
+            $matchedConfigFile = $candidateConfigFile
+            break
+        }
+    }
+
+    if ($matchedConfigFile -eq $null) {
+        Throw "Failed to find match for '$configFileRelativePath' ( attempt: '$configFileBaseFullPath' )"
+    }
+
+    return $matchedConfigFile
+}
 # END: HELPERS ###############################################
 
 
