@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<sc-config-data>
+   <record>
+	   <Product>p1</Product>
+	   <FilePath>fp1</FilePath>
+	   <ConfigFileName>cfn1</ConfigFileName>
+	   <ConfigType>ct1</ConfigType>
+	   <SearchProviderUsed>spu1</SearchProviderUsed>
+	   <ContentDelivery>cd1</ContentDelivery>
+	   <ContentManagement>cm1</ContentManagement>
+	   <Processing>p1</Processing>
+	   <CMAndProcessing>cmap1</CMAndProcessing>
+	   <Reporting>r1</Reporting>
+   </record>
+   <record>
+	   <Product>p2</Product>
+	   <FilePath>fp1</FilePath>
+	   <ConfigFileName>cfn2</ConfigFileName>
+	   <ConfigType>ct2</ConfigType>
+	   <SearchProviderUsed>spu2</SearchProviderUsed>
+	   <ContentDelivery>cd2</ContentDelivery>
+	   <ContentManagement>cm2</ContentManagement>
+	   <Processing>p2</Processing>
+	   <CMAndProcessing>cmap2</CMAndProcessing>
+	   <Reporting>r2</Reporting>
+   </record>
+</sc-config-data>
