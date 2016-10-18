@@ -28,6 +28,8 @@ param (
 )
 
 # CONFIGURATION ##############################################
+# NOTE: extensions must be lower case
+# NOTE: first entry in each extension list is to be used as default extension ( while renaming files to enable / disable them )
 $SCRIPT:CONFIG:DisabledFileExtensions = @('.disabled', '.example')
 $SCRIPT:CONFIG:EnabledFileExtensions = @('.config')
 # END: CONFIGURATION #########################################
@@ -77,7 +79,12 @@ function Get-MatchingConfigFile {
     #   - remove '\website' or 'website' entry from the manifest ( since the script operates in the context of webroot folder )
     #   - add '.*' to config file base name ( to get file system search pattern )
     # As a result we end up with '\relative\path\file.base.name.*' ( so that later on we can get all files from file system, get their base names and fetch the one that corresponds to the manifest entry )
-    $configFileBaseRelativePath = Join-Path -Path ($configFileRelativePath -replace '^\\?website','') -ChildPath ( "{0}.*" -f $configFileBaseName )
+    $adjustedConfigFileRelativePath = $configFileRelativePath -replace '^\\?website',''
+    $configFileBaseRelativePath = ( "{0}.*" -f $configFileBaseName )
+    if (-not [string]::IsNullOrEmpty($adjustedConfigFileRelativePath)) {
+        # This is necessary for definitions like '/website/web.config'
+        $configFileBaseRelativePath = Join-Path -Path $adjustedConfigFileRelativePath -ChildPath $configFileBaseRelativePath
+    }
 
     $configFileBaseFullPath = Join-Path -Path $Webroot -ChildPath $configFileBaseRelativePath
 
@@ -95,10 +102,88 @@ function Get-MatchingConfigFile {
     }
 
     if ($matchedConfigFile -eq $null) {
-        Throw "Failed to find match for '$configFileRelativePath' ( attempt: '$configFileBaseFullPath' )"
+        Throw "Failed to find match for '$ManifestConfigFilePath' ( attempt: '$configFileBaseFullPath' )"
     }
 
     return $matchedConfigFile
+}
+
+function Process-ConfigFile {
+    param (
+        $Role,
+        $Webroot,
+        [System.Xml.XmlElement]$ManifestRecord
+    )
+
+    $roleConfigSetting = $ManifestRecord.SelectSingleNode($Role)
+    if ($roleConfigSetting -eq $null) {
+        throw "Failed to read '$Role' configuration on the manifest record  ( '$($ManifestRecord.OuterXml)' )"
+    }
+
+    $manifestRelativeFilePath = Join-Path -Path $ManifestRecord.FilePath -ChildPath $ManifestRecord.ConfigFileName
+    $realConfigFile = Get-MatchingConfigFile -Webroot $Webroot -ManifestConfigFilePath $manifestRelativeFilePath 
+
+    $realConfigFileName = Split-Path -Path $realConfigFile -Leaf
+    $realConfigFileIsEnabled = ( $SCRIPT:CONFIG:EnabledFileExtensions.Contains([System.IO.Path]::GetExtension($realConfigFileName).ToLower()) )
+
+    Trace -Info "Manifest file: '$manifestRelativeFilePath' ( resolved file: '$realConfigFile')"
+
+    $status = "N/A"
+
+    switch ($roleConfigSetting.InnerText.ToLower()) {
+        "enable" { 
+            if (-not $realConfigFileIsEnabled) {
+                $status = "File has to be enabled but is disabled. Enabling file"
+                Rename-Item -Path $realConfigFile -NewName ( [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:EnabledFileExtensions[0]) )
+            } else {
+                $status = "File has to be ( and already is ) enabled. No further action required"
+            }
+        }
+        "disable" { 
+            if ($realConfigFileIsEnabled) {
+                $status = "File has to be disabled but is enabled. Disabling file"
+                Rename-Item -Path $realConfigFile -NewName ( [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:DisabledFileExtensions[0]) )
+            } else {
+                $status = "File has to be ( and already is ) disabled. No further action required"
+            }
+        }
+        "n/a" {
+            $status = "The current role does not demand the file to be disabled or enabled ( config file is not being used in this configuration ). No action is to be performed"
+        }
+    }
+
+    Trace -Info "  > STATUS: $status"
+
+}
+
+
+function Trace {
+    [CmdletBinding(DefaultParametersetName="Info")] 
+    param (
+        [Parameter(ParameterSetName="Info")]
+        [switch]$Info,
+        [Parameter(ParameterSetName="Warn")]
+        [switch]$Warn,
+        [Parameter(ParameterSetName="Err")]
+        [switch]$Err,
+        [Parameter(Position=1)]
+        $Message
+    )
+
+    $messageColor = (get-host).ui.rawui.ForegroundColor
+    switch ( $PSCmdlet.ParameterSetName) {
+        "Warn" { $messageColor = 'Yellow' }
+        "Err" { $messageColor = 'Red' }
+    }
+
+    $timestamp = "[{0}] " -f (get-date -Format 'HH:mm:ss'),$Message
+
+    write-host $timestamp -NoNewline
+    if ($PSCmdlet.ParameterSetName -eq 'Info') {
+        write-host $Message
+    } else {
+        write-host $Message -ForegroundColor $messageColor
+    }
 }
 # END: HELPERS ###############################################
 
