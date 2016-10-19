@@ -23,8 +23,14 @@
 #>
 
 param (
+    [Parameter(Mandatory=$true,ParameterSetName="Apply")]
+    [switch]$ApplyManifest,
+    [Parameter(Mandatory=$true,ParameterSetName="Verify")]
+    [switch]$Verify,
+    $Role,
+    $SearchProvider,
     $Webroot,
-    [xml]$ConfigurationManifest
+    $ConfigurationManifest
 )
 
 # CONFIGURATION ##############################################
@@ -32,6 +38,8 @@ param (
 # NOTE: first entry in each extension list is to be used as default extension ( while renaming files to enable / disable them )
 $SCRIPT:CONFIG:DisabledFileExtensions = @('.disabled', '.example')
 $SCRIPT:CONFIG:EnabledFileExtensions = @('.config')
+
+$SCRIPT:CONFIG:ManifestDefinitionsXPath = "/scconfigmanifest/record"
 # END: CONFIGURATION #########################################
 
 # HELPERS ####################################################
@@ -116,6 +124,10 @@ function Get-MatchingConfigFile {
 
 function Process-ConfigFile {
     param (
+        [Parameter(Mandatory=$true,ParameterSetName="Apply")]
+        [switch]$ApplyManifest,
+        [Parameter(Mandatory=$true,ParameterSetName="Verify")]
+        [switch]$Verify,
         [Parameter(Mandatory=$true)]
         $Role,
         [Parameter(Mandatory=$true)]
@@ -148,46 +160,43 @@ function Process-ConfigFile {
 
     Trace -Info "Manifest file: '$manifestRelativeFilePath' ( resolved file: '$realConfigFile'). Search provider: ( '$manifestRecordSearchProviderDisplayName' )"
 
-
-    $status = "N/A"
-
     if ( ($manifestRecordSearchProvider -ne $null) -and ($manifestRecordSearchProvider.ToLower() -ne $SearchProvider.ToLower()) ) {
         # Skip operation if the manifest entry is set for search provider that is not the same as the currently specified
-        $status = "The manifest record is for '$manifestRecordSearchProvider' search provider whereas target search provider for the operation is set to '$SearchProvider'. Skipping the current manifest entry. No change is to be performed."
-    } else {
-        # Proceed if search provider is the same
-        switch ($roleConfigSetting.InnerText.ToLower()) {
-            "enable" {
-                if (-not $realConfigFileIsEnabled) {
-                    $status = "File has to be enabled but is disabled. Enabling file"
+        Trace -Info "The manifest record is for '$manifestRecordSearchProvider' search provider whereas target search provider for the operation is set to '$SearchProvider'. Skipping the current manifest entry. No change is to be performed."
+        return
+    } 
+
+    # Proceed if search provider is the same
+    switch ($roleConfigSetting.InnerText.ToLower()) {
+        "enable" {
+            if (-not $realConfigFileIsEnabled) {
+                Trace -Warn " > The configuration file is disabled ( has to be enabled as per manifest )"
+                if ($PSCmdlet.ParameterSetName -eq 'Apply') {
                     $newFileName = [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:EnabledFileExtensions[0])
                     Rename-Item -Path $realConfigFile -NewName $newFileName
                     Trace -Highlight "Renamed '$realConfigFile' -> '$newFileName'"
-                } else {
-                    $status = "File has to be ( and already is ) enabled. No further action required"
                 }
+            } else {
+                Trace -Info " > File has to be ( and already is ) enabled. No further action required"
             }
-            "disable" { 
-
-                if ($realConfigFileIsEnabled) {
-                    $status = "File has to be disabled but is enabled. Disabling file"
+        }
+        "disable" { 
+            if ($realConfigFileIsEnabled) {
+                Trace -Warn " > The configuration file has to be disabled but is enabled"
+                if ($PSCmdlet.ParameterSetName -eq 'Apply') {
                     $newFileName = [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:DisabledFileExtensions[0])
                     Rename-Item -Path $realConfigFile -NewName $newFileName
                     Trace -Highlight "Renamed '$realConfigFile' -> '$newFileName'"
-                } else {
-                    $status = "File has to be ( and already is ) disabled. No further action required"
                 }
-            }
-            "n/a" {
-                $status = "The current role does not demand the file to be disabled or enabled ( config file is not being used in this configuration ). No action is to be performed"
+            } else {
+                Trace -Info " > File has to be ( and already is ) disabled. No further action required"
             }
         }
+        "n/a" {
+            Trace -Info " > The current role does not demand the file to be disabled or enabled ( config file is not being used in this configuration ). No action is to be performed"
+        }
     }
-
-    Trace -Info "  > STATUS: $status"
-
 }
-
 
 function Trace {
     [CmdletBinding(DefaultParametersetName="Info")] 
@@ -232,3 +241,16 @@ if (-not(Test-Path (Join-Path -Path $Webroot -ChildPath "App_Config/Include"))) 
     throw "Sitecore configuration folder (App_Config/Include) not found under the webroot folder ($Webroot)"
 }
 
+if (-not(Test-Path -Path $ConfigurationManifest -PathType Leaf)) {
+    throw "Failed to find configuration manifest '$ConfigurationManifest'"
+}
+
+$sconfig = [xml](gc $ConfigurationManifest)
+
+$sconfig.SelectNodes($SCRIPT:CONFIG:ManifestDefinitionsXPath) | % { 
+    try { 
+        Process-ConfigFile -Verify -Role $Role -SearchProvider $SearchProvider -Webroot $Webroot -ManifestRecord $_ 
+    } catch { 
+        Trace -Err -Message $_.Exception.Message 
+    } 
+}
