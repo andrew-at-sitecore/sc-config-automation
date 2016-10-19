@@ -248,8 +248,12 @@ if (-not(Test-Path -Path $ConfigurationManifest -PathType Leaf)) {
 $sconfig = [xml](gc $ConfigurationManifest)
 
 $sconfig.SelectNodes($SCRIPT:CONFIG:ManifestDefinitionsXPath) | % { 
-    try { 
-        Process-ConfigFile -Verify -Role $Role -SearchProvider $SearchProvider -Webroot $Webroot -ManifestRecord $_ 
+    try {
+        if ($PSCmdlet.ParameterSetName -eq 'Verify') { 
+            Process-ConfigFile -Verify -Role $Role -SearchProvider $SearchProvider -Webroot $Webroot -ManifestRecord $_
+        } elseif ($PSCmdlet.ParameterSetName -eq 'Apply') {
+            Process-ConfigFile -ApplyManifest -Role $Role -SearchProvider $SearchProvider -Webroot $Webroot -ManifestRecord $_
+        }
     } catch { 
         Trace -Err -Message $_.Exception.Message 
     } 
