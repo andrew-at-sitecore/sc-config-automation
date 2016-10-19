@@ -116,8 +116,13 @@ function Get-MatchingConfigFile {
 
 function Process-ConfigFile {
     param (
+        [Parameter(Mandatory=$true)]
         $Role,
+        [Parameter(Mandatory=$true)]
+        $SearchProvider,
+        [Parameter(Mandatory=$true)]
         $Webroot,
+        [Parameter(Mandatory=$true)]
         [System.Xml.XmlElement]$ManifestRecord
     )
 
@@ -132,33 +137,50 @@ function Process-ConfigFile {
     $realConfigFileName = Split-Path -Path $realConfigFile -Leaf
     $realConfigFileIsEnabled = ( $SCRIPT:CONFIG:EnabledFileExtensions.Contains([System.IO.Path]::GetExtension($realConfigFileName).ToLower()) )
 
-    Trace -Info "Manifest file: '$manifestRelativeFilePath' ( resolved file: '$realConfigFile')"
+    # Clarifying if there is specific search provider associated with the manifest record
+    $manifestRecordSearchProvider = $null
+    $manifestRecordSearchProviderDisplayName = "NONE"
+    $manifestRecordSearchConfig = $ManifestRecord.SelectSingleNode('SearchProviderUsed')
+    if ($manifestRecordSearchConfig -ne $null) {
+        $manifestRecordSearchProvider = $manifestRecordSearchConfig.InnerText
+        $manifestRecordSearchProviderDisplayName = $manifestRecordSearchConfig.InnerText
+    }
+
+    Trace -Info "Manifest file: '$manifestRelativeFilePath' ( resolved file: '$realConfigFile'). Search provider: ( '$manifestRecordSearchProviderDisplayName' )"
+
 
     $status = "N/A"
 
-    switch ($roleConfigSetting.InnerText.ToLower()) {
-        "enable" { 
-            if (-not $realConfigFileIsEnabled) {
-                $status = "File has to be enabled but is disabled. Enabling file"
-                $newFileName = [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:EnabledFileExtensions[0])
-                Rename-Item -Path $realConfigFile -NewName $newFileName
-                Trace -Highlight "Renamed '$realConfigFile' -> '$newFileName'"
-            } else {
-                $status = "File has to be ( and already is ) enabled. No further action required"
+    if ( ($manifestRecordSearchProvider -ne $null) -and ($manifestRecordSearchProvider.ToLower() -ne $SearchProvider.ToLower()) ) {
+        # Skip operation if the manifest entry is set for search provider that is not the same as the currently specified
+        $status = "The manifest record is for '$manifestRecordSearchProvider' search provider whereas target search provider for the operation is set to '$SearchProvider'. Skipping the current manifest entry. No change is to be performed."
+    } else {
+        # Proceed if search provider is the same
+        switch ($roleConfigSetting.InnerText.ToLower()) {
+            "enable" {
+                if (-not $realConfigFileIsEnabled) {
+                    $status = "File has to be enabled but is disabled. Enabling file"
+                    $newFileName = [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:EnabledFileExtensions[0])
+                    Rename-Item -Path $realConfigFile -NewName $newFileName
+                    Trace -Highlight "Renamed '$realConfigFile' -> '$newFileName'"
+                } else {
+                    $status = "File has to be ( and already is ) enabled. No further action required"
+                }
             }
-        }
-        "disable" { 
-            if ($realConfigFileIsEnabled) {
-                $status = "File has to be disabled but is enabled. Disabling file"
-                $newFileName = [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:DisabledFileExtensions[0])
-                Rename-Item -Path $realConfigFile -NewName $newFileName
-                Trace -Highlight "Renamed '$realConfigFile' -> '$newFileName'"
-            } else {
-                $status = "File has to be ( and already is ) disabled. No further action required"
+            "disable" { 
+
+                if ($realConfigFileIsEnabled) {
+                    $status = "File has to be disabled but is enabled. Disabling file"
+                    $newFileName = [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:DisabledFileExtensions[0])
+                    Rename-Item -Path $realConfigFile -NewName $newFileName
+                    Trace -Highlight "Renamed '$realConfigFile' -> '$newFileName'"
+                } else {
+                    $status = "File has to be ( and already is ) disabled. No further action required"
+                }
             }
-        }
-        "n/a" {
-            $status = "The current role does not demand the file to be disabled or enabled ( config file is not being used in this configuration ). No action is to be performed"
+            "n/a" {
+                $status = "The current role does not demand the file to be disabled or enabled ( config file is not being used in this configuration ). No action is to be performed"
+            }
         }
     }
 

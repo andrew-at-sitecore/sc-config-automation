@@ -556,7 +556,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.ContentSearch.Lucene.DefaultIndexConfiguration.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Enable</Processing>
@@ -568,7 +568,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.ContentSearch.Lucene.Index.Analytics.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Enable</Processing>
@@ -580,7 +580,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.ContentSearch.Lucene.Index.Core.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Enable</Processing>
@@ -592,7 +592,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.ContentSearch.Lucene.Index.Master.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Enable</Processing>
@@ -604,7 +604,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.ContentSearch.Lucene.Index.Web.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Disable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -616,7 +616,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.ContentSearch.Lucene.Indexes.Sharded.Core.config.example</ConfigFileName>
 		<ConfigType>example</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Disable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -628,7 +628,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.ContentSearch.Lucene.Indexes.Sharded.Master.config.example</ConfigFileName>
 		<ConfigType>example</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Disable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -640,7 +640,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.ContentSearch.Lucene.Indexes.Sharded.Web.config.example</ConfigFileName>
 		<ConfigType>example</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Disable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -652,7 +652,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.ContentSearch.Solr.DefaultIndexConfiguration.config.example</ConfigFileName>
 		<ConfigType>example</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Enable</Processing>
@@ -664,7 +664,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.ContentSearch.Solr.Index.Analytics.config.example</ConfigFileName>
 		<ConfigType>example</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Enable</Processing>
@@ -676,7 +676,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.ContentSearch.Solr.Index.Core.config.example</ConfigFileName>
 		<ConfigType>example</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Enable</Processing>
@@ -688,7 +688,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.ContentSearch.Solr.Index.Master.config.example</ConfigFileName>
 		<ConfigType>example</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Enable</Processing>
@@ -700,7 +700,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.ContentSearch.Solr.Index.Web.config.example</ConfigFileName>
 		<ConfigType>example</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Disable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -855,7 +855,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Marketing.Definitions.MarketingAssets.Repositories.Lucene.Index.Master.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -867,7 +867,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Marketing.Definitions.MarketingAssets.Repositories.Lucene.Index.Web.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Disable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -879,7 +879,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Marketing.Definitions.MarketingAssets.Repositories.Lucene.IndexConfiguration.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -891,7 +891,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Marketing.Definitions.MarketingAssets.Repositories.Solr.Index.Master.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -903,7 +903,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Marketing.Definitions.MarketingAssets.Repositories.Solr.Index.Web.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Disable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -915,7 +915,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Marketing.Definitions.MarketingAssets.Repositories.Solr.IndexConfiguration.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -938,7 +938,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Marketing.Lucene.Index.Master.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -950,7 +950,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Marketing.Lucene.Index.Web.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Disable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -962,7 +962,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Marketing.Lucene.IndexConfiguration.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Enable</Processing>
@@ -986,7 +986,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Marketing.Lucene.IndexConfiguration.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Disable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -998,7 +998,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Marketing.Solr.Index.Master.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1010,7 +1010,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Marketing.Solr.Index.Web.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Disable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1022,7 +1022,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Marketing.Solr.IndexConfiguration.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1331,7 +1331,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Speak.ContentSearch.Lucene.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1343,7 +1343,7 @@
 		<FilePath>\website\App_Config\Include</FilePath>
 		<ConfigFileName>Sitecore.Speak.ContentSearch.Solr.config.example</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1641,7 +1641,7 @@
 		<FilePath>\website\App_Config\Include\ContentTesting</FilePath>
 		<ConfigFileName>Sitecore.ContentTesting.Lucene.IndexConfiguration.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Enable</Processing>
@@ -1686,7 +1686,7 @@
 		<FilePath>\website\App_Config\Include\ContentTesting</FilePath>
 		<ConfigFileName>Sitecore.ContentTesting.Solr.IndexConfiguration.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Enable</Processing>
@@ -1830,7 +1830,7 @@
 		<FilePath>\website\App_Config\Include\FXM</FilePath>
 		<ConfigFileName>Sitecore.FXM.Lucene.DomainsSearch.DefaultIndexConfiguration.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1842,7 +1842,7 @@
 		<FilePath>\website\App_Config\Include\FXM</FilePath>
 		<ConfigFileName>Sitecore.FXM.Lucene.DomainsSearch.Index.Master.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1854,7 +1854,7 @@
 		<FilePath>\website\App_Config\Include\FXM</FilePath>
 		<ConfigFileName>Sitecore.FXM.Lucene.DomainsSearch.Index.Web.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1866,7 +1866,7 @@
 		<FilePath>\website\App_Config\Include\FXM</FilePath>
 		<ConfigFileName>Sitecore.FXM.Solr.DomainsSearch.DefaultIndexConfiguration.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1878,7 +1878,7 @@
 		<FilePath>\website\App_Config\Include\FXM</FilePath>
 		<ConfigFileName>Sitecore.FXM.Solr.DomainsSearch.Index.Master.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1890,7 +1890,7 @@
 		<FilePath>\website\App_Config\Include\FXM</FilePath>
 		<ConfigFileName>Sitecore.FXM.Solr.DomainsSearch.Index.Web.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1946,7 +1946,7 @@
 		<FilePath>\website\App_Config\Include\ListManagement</FilePath>
 		<ConfigFileName>Sitecore.ListManagement.Lucene.Index.List.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1958,7 +1958,7 @@
 		<FilePath>\website\App_Config\Include\ListManagement</FilePath>
 		<ConfigFileName>Sitecore.ListManagement.Lucene.IndexConfiguration.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1981,7 +1981,7 @@
 		<FilePath>\website\App_Config\Include\ListManagement</FilePath>
 		<ConfigFileName>Sitecore.ListManagement.Solr.Index.List.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -1993,7 +1993,7 @@
 		<FilePath>\website\App_Config\Include\ListManagement</FilePath>
 		<ConfigFileName>Sitecore.ListManagement.Solr.IndexConfiguration.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -2093,7 +2093,7 @@
 		<FilePath>\website\App_Config\Include\Social</FilePath>
 		<ConfigFileName>Sitecore.Social.Lucene.Index.Master.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -2105,7 +2105,7 @@
 		<FilePath>\website\App_Config\Include\Social</FilePath>
 		<ConfigFileName>Sitecore.Social.Lucene.Index.Web.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Disable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -2117,7 +2117,7 @@
 		<FilePath>\website\App_Config\Include\Social</FilePath>
 		<ConfigFileName>Sitecore.Social.Lucene.IndexConfiguration.config</ConfigFileName>
 		<ConfigType>config</ConfigType>
-		<SearchProviderUsed>Lucene is used</SearchProviderUsed>
+		<SearchProviderUsed>Lucene</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -2195,7 +2195,7 @@
 		<FilePath>\website\App_Config\Include\Social</FilePath>
 		<ConfigFileName>Sitecore.Social.Solr.Index.Master.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Disable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -2207,7 +2207,7 @@
 		<FilePath>\website\App_Config\Include\Social</FilePath>
 		<ConfigFileName>Sitecore.Social.Solr.Index.Web.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Disable</ContentManagement>
 		<Processing>Disable</Processing>
@@ -2219,7 +2219,7 @@
 		<FilePath>\website\App_Config\Include\Social</FilePath>
 		<ConfigFileName>Sitecore.Social.Solr.IndexConfiguration.config.disabled</ConfigFileName>
 		<ConfigType>disabled</ConfigType>
-		<SearchProviderUsed>Solr is used</SearchProviderUsed>
+		<SearchProviderUsed>Solr</SearchProviderUsed>
 		<ContentDelivery>Enable</ContentDelivery>
 		<ContentManagement>Enable</ContentManagement>
 		<Processing>Disable</Processing>
