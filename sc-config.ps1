@@ -182,7 +182,7 @@ function Process-ConfigFile {
         }
         "disable" { 
             if ($realConfigFileIsEnabled) {
-                Trace -Warn " > The configuration file has to be disabled but is enabled"
+                Trace -Warn " > The configuration file is enabled ( has to be disabled as per manifest )"
                 if ($PSCmdlet.ParameterSetName -eq 'Apply') {
                     $newFileName = [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:DisabledFileExtensions[0])
                     Rename-Item -Path $realConfigFile -NewName $newFileName
