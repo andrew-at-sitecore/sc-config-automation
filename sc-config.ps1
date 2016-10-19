@@ -88,6 +88,12 @@ function Get-MatchingConfigFile {
 
     $configFileBaseFullPath = Join-Path -Path $Webroot -ChildPath $configFileBaseRelativePath
 
+    # Check that target location exists
+    $configTargetLocation = Split-Path -Path $configFileBaseFullPath -Parent
+    if (-not (Test-Path -Path $configTargetLocation -PathType Container )) {
+        throw "Target location directory '$configTargetLocation' does not exist ( processing '$ManifestConfigFilePath' entry from the configuration manifest )"
+    }
+
     # Now we try to match the config file from the manifest to the actual config file by comparing their base names
     $matchedConfigFile = $null
     foreach ( $candidateConfigFile in (gci $configFileBaseFullPath)) {
@@ -134,7 +140,9 @@ function Process-ConfigFile {
         "enable" { 
             if (-not $realConfigFileIsEnabled) {
                 $status = "File has to be enabled but is disabled. Enabling file"
-                Rename-Item -Path $realConfigFile -NewName ( [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:EnabledFileExtensions[0]) )
+                $newFileName = [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:EnabledFileExtensions[0])
+                Rename-Item -Path $realConfigFile -NewName $newFileName
+                Trace -Highlight "Renamed '$realConfigFile' -> '$newFileName'"
             } else {
                 $status = "File has to be ( and already is ) enabled. No further action required"
             }
@@ -142,7 +150,9 @@ function Process-ConfigFile {
         "disable" { 
             if ($realConfigFileIsEnabled) {
                 $status = "File has to be disabled but is enabled. Disabling file"
-                Rename-Item -Path $realConfigFile -NewName ( [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:DisabledFileExtensions[0]) )
+                $newFileName = [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:DisabledFileExtensions[0])
+                Rename-Item -Path $realConfigFile -NewName $newFileName
+                Trace -Highlight "Renamed '$realConfigFile' -> '$newFileName'"
             } else {
                 $status = "File has to be ( and already is ) disabled. No further action required"
             }
@@ -162,6 +172,8 @@ function Trace {
     param (
         [Parameter(ParameterSetName="Info")]
         [switch]$Info,
+        [Parameter(ParameterSetName="Highlight")]
+        [switch]$Highlight,
         [Parameter(ParameterSetName="Warn")]
         [switch]$Warn,
         [Parameter(ParameterSetName="Err")]
@@ -174,6 +186,7 @@ function Trace {
     switch ( $PSCmdlet.ParameterSetName) {
         "Warn" { $messageColor = 'Yellow' }
         "Err" { $messageColor = 'Red' }
+        "Highlight" { $messageColor = 'Cyan'}
     }
 
     $timestamp = "[{0}] " -f (get-date -Format 'HH:mm:ss'),$Message
