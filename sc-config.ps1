@@ -122,6 +122,45 @@ function Get-MatchingConfigFile {
     return $matchedConfigFile
 }
 
+function Do-DisableConfigFile {
+    param (
+        $ConfigFile,
+        $TraceRecord
+    )
+
+    try {
+        #TODO: try do remove disable extensions first ( and verify that what is left is enable extension)
+        $configFileName= Split-Path -Path $ConfigFile -Leaf
+        $newFileName = [System.IO.Path]::ChangeExtension($configFileName, $SCRIPT:CONFIG:DisabledFileExtensions[0])
+        Rename-Item -Path $ConfigFile -NewName $newFileName
+        $TraceRecord.ProcessingTrace += "Renamed '$ConfigFile' -> '$newFileName'"
+        $TraceRecord.Status = 'Disabled'
+    } catch {
+        $TraceRecord.ProcessingTrace += "$($_.Exception.Message)"
+        $TraceRecord.ProcessingTrace += "$($_.Exception.StackTrace)"
+        $TraceRecord.Status = 'Failed to disable'
+    } 
+}
+
+function Do-EnableConfigFile {
+    param (
+        $ConfigFile,
+        $TraceRecord
+    )
+
+    try {
+        $configFileName = Split-Path -Path $ConfigFile -Leaf
+        $newFileName = [System.IO.Path]::ChangeExtension($configFileName, $SCRIPT:CONFIG:EnabledFileExtensions[0])
+        Rename-Item -Path $ConfigFile -NewName $newFileName
+        $TraceRecord.ProcessingTrace += "Renamed '$ConfigFile' -> '$newFileName'"
+        $TraceRecord.Status = 'Enabled'
+    } catch {
+        $TraceRecord.ProcessingTrace += "$($_.Exception.Message)"
+        $TraceRecord.ProcessingTrace += "$($_.Exception.StackTrace)"
+        $TraceRecord.Status = 'Failed to enable'
+    }
+}
+
 function Process-ConfigFile {
     param (
         [Parameter(Mandatory=$true,ParameterSetName="Apply")]
@@ -138,14 +177,9 @@ function Process-ConfigFile {
         [System.Xml.XmlElement]$ManifestRecord
     )
 
-    $roleConfigSetting = $ManifestRecord.SelectSingleNode($Role)
-    if ($roleConfigSetting -eq $null) {
-        throw "Failed to read '$Role' configuration on the manifest record  ( '$($ManifestRecord.OuterXml)' )"
-    }
-
     $manifestRelativeFilePath = Join-Path -Path $ManifestRecord.FilePath -ChildPath $ManifestRecord.ConfigFileName
-    $realConfigFile = Get-MatchingConfigFile -Webroot $Webroot -ManifestConfigFilePath $manifestRelativeFilePath 
 
+    $realConfigFile = Get-MatchingConfigFile -Webroot $Webroot -ManifestConfigFilePath $manifestRelativeFilePath 
     $realConfigFileName = Split-Path -Path $realConfigFile -Leaf
     $realConfigFileIsEnabled = ( $SCRIPT:CONFIG:EnabledFileExtensions.Contains([System.IO.Path]::GetExtension($realConfigFileName).ToLower()) )
 
@@ -158,44 +192,68 @@ function Process-ConfigFile {
         $manifestRecordSearchProviderDisplayName = $manifestRecordSearchConfig.InnerText
     }
 
-    Trace -Info "Manifest file: '$manifestRelativeFilePath' ( resolved file: '$realConfigFile'). Search provider: ( '$manifestRecordSearchProviderDisplayName' )"
+    $traceRecord = new-object psobject -Property @{
+        ManifestRecord = $ManifestRecord.OuterXml;
+        ManifestRelativePath = $manifestRelativeFilePath;
+        ManifestSearchProvider = $manifestRecordSearchProviderDisplayName;
+        RealConfigFile = $realConfigFile;
+        ProcessingTrace = @();
+        Status = 'N\A'
+    }
+
+    $roleConfigSetting = $ManifestRecord.SelectSingleNode($Role)
+    if ($roleConfigSetting -eq $null) {
+        $msg = "Failed to read '$Role' configuration on the manifest record  ( '$($ManifestRecord.OuterXml)' )"
+        $traceRecord.Status = 'Failed'
+        $traceRecord.ProcessingTrace += $msg
+        return $traceRecord
+    }
 
     if ( ($manifestRecordSearchProvider -ne $null) -and ($manifestRecordSearchProvider.ToLower() -ne $SearchProvider.ToLower()) ) {
-        # Skip operation if the manifest entry is set for search provider that is not the same as the currently specified
-        Trace -Info "The manifest record is for '$manifestRecordSearchProvider' search provider whereas target search provider for the operation is set to '$SearchProvider'. Skipping the current manifest entry. No change is to be performed."
-        return
+        $traceRecord.ProcessingTrace += "The manifest record is for '$manifestRecordSearchProvider' search provider whereas target search provider for the operation is set to '$SearchProvider'. The configuration file needs to be disabled"
+        if ($PSCmdlet.ParameterSetName -eq 'Apply') {
+            Do-DisableConfigFile -ConfigFile $realConfigFile -TraceRecord $traceRecord
+        } else {
+            $traceRecord.Status = 'Needs to be disabled'
+        }
+        return $traceRecord
     } 
 
     # Proceed if search provider is the same
     switch ($roleConfigSetting.InnerText.ToLower()) {
         "enable" {
             if (-not $realConfigFileIsEnabled) {
-                Trace -Warn " > The configuration file is disabled ( has to be enabled as per manifest )"
+                $traceRecord.ProcessingTrace += " > The configuration file is disabled ( has to be enabled as per manifest )"
                 if ($PSCmdlet.ParameterSetName -eq 'Apply') {
-                    $newFileName = [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:EnabledFileExtensions[0])
-                    Rename-Item -Path $realConfigFile -NewName $newFileName
-                    Trace -Highlight "Renamed '$realConfigFile' -> '$newFileName'"
+                    Do-EnableConfigFile -ConfigFile $realConfigFile -TraceRecord $traceRecord
+                } else {
+                    $traceRecord.Status = 'Needs to be enabled'
                 }
             } else {
-                Trace -Info " > File has to be ( and already is ) enabled. No further action required"
+                $traceRecord.ProcessingTrace += " > File has to be ( and already is ) enabled. No further action required"
+                $traceRecord.Status = 'OK'
             }
         }
         "disable" { 
             if ($realConfigFileIsEnabled) {
-                Trace -Warn " > The configuration file is enabled ( has to be disabled as per manifest )"
+                $traceRecord.ProcessingTrace += " > The configuration file is enabled ( has to be disabled as per manifest )"
                 if ($PSCmdlet.ParameterSetName -eq 'Apply') {
-                    $newFileName = [System.IO.Path]::ChangeExtension($realConfigFileName, $SCRIPT:CONFIG:DisabledFileExtensions[0])
-                    Rename-Item -Path $realConfigFile -NewName $newFileName
-                    Trace -Highlight "Renamed '$realConfigFile' -> '$newFileName'"
+                    Do-DisableConfigFile -ConfigFile $realConfigFile -TraceRecord $traceRecord
+                } else {
+                    $traceRecord.Status = 'Needs to be disabled'
                 }
             } else {
-                Trace -Info " > File has to be ( and already is ) disabled. No further action required"
+                $traceRecord.ProcessingTrace += " > File has to be ( and already is ) disabled. No further action required"
+                $traceRecord.Status = 'OK'
             }
         }
         "n/a" {
-            Trace -Info " > The current role does not demand the file to be disabled or enabled ( config file is not being used in this configuration ). No action is to be performed"
+            $traceRecord.ProcessingTrace += " > The current role does not demand the file to be disabled or enabled ( config file is not being used in this configuration ). No action is to be performed"
+            $traceRecord.Status = 'OK'
         }
     }
+
+    return $traceRecord
 }
 
 function Trace {
@@ -247,14 +305,30 @@ if (-not(Test-Path -Path $ConfigurationManifest -PathType Leaf)) {
 
 $sconfig = [xml](gc $ConfigurationManifest)
 
+$executionTrace = @()
+$traceRecord = $null
 $sconfig.SelectNodes($SCRIPT:CONFIG:ManifestDefinitionsXPath) | % { 
     try {
         if ($PSCmdlet.ParameterSetName -eq 'Verify') { 
-            Process-ConfigFile -Verify -Role $Role -SearchProvider $SearchProvider -Webroot $Webroot -ManifestRecord $_
+            $traceRecord = Process-ConfigFile -Verify -Role $Role -SearchProvider $SearchProvider -Webroot $Webroot -ManifestRecord $_
         } elseif ($PSCmdlet.ParameterSetName -eq 'Apply') {
-            Process-ConfigFile -ApplyManifest -Role $Role -SearchProvider $SearchProvider -Webroot $Webroot -ManifestRecord $_
+            $traceRecord = Process-ConfigFile -ApplyManifest -Role $Role -SearchProvider $SearchProvider -Webroot $Webroot -ManifestRecord $_
+        }
+
+        if ($traceRecord -ne $null) {
+            $executionTrace += $traceRecord
+            $screenMsg = "[$($traceRecord.Status)] $($traceRecord.RealConfigFile)" 
+            if ($traceRecord.Status -like 'Fail.*') {
+                Trace -Err $screenMsg 
+            } elseif ($traceRecord.Status -ne 'OK') {
+                Trace -Highlight $screenMsg
+            } else {
+                Trace -Info $screenMsg
+            }
         }
     } catch { 
-        Trace -Err -Message $_.Exception.Message 
+            Trace -Err -Message $_.Exception.Message 
     } 
 }
+
+return $executionTrace
