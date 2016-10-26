@@ -1,6 +1,12 @@
 # sc-config-automation
 PowerShell scripts intended to automate config file activation / deactivation ( depending on instance role )
 
+# Notes
+The script does **NOT**
+- Automatically verify that the manifest corresponds to the version of Sitecore it is being applied to
+
+Consider this an alpha version. The script is to be further developed should it be recognized as a useful tool by other PSS engineers. Feel free to share your feedback.
+
 # Concepts
 
 - Manifest : XML file containing information on which default Sitecore configuration files have to be enabled / disabled for particular role. The manifest XML file is manually generated from the Excel document available at doc.sitecore.net website. 
