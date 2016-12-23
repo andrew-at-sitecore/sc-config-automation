@@ -27,22 +27,68 @@ param (
     [switch]$ApplyManifest,
     [Parameter(Mandatory=$true,ParameterSetName="Verify")]
     [switch]$Verify,
-    $Role,
-    $SearchProvider,
+    [string]$Role,
+    [string]$SearchProvider,
     $Webroot,
     $ConfigurationManifest
 )
 
-# CONFIGURATION ##############################################
+# CONFIGURATION::FILE EXTENSIONS ##############################################
+# NOTE: anticipated to be edited by end user to adjust for desired behavior
 # NOTE: extensions must be lower case
 # NOTE: first entry in each extension list is to be used as default extension ( while renaming files to enable / disable them )
 $SCRIPT:CONFIG:DisabledFileExtensions = @('.disabled', '.example')
 $SCRIPT:CONFIG:EnabledFileExtensions = @('.config')
 
-$SCRIPT:CONFIG:ManifestDefinitionsXPath = "/scconfigmanifest/record"
-# END: CONFIGURATION #########################################
+# CONFIGURATION::SEARCH PROVIDERS ##############################################
+# NOTE: anticipated to be edited by end user ( in case some manifest records differ )
+# NOTE: used by script to "translate" actual manifest records to the corresponding search provider ( to resolve some ambiguity )
+$SCRIPT:CONFIG:SearchProviderDictionary = @{
+    Any = @('');
+    Lucene = @('Base','Lucene is used');
+    Solr = @('Solr is used')
+}
+
+# CONFIGURATION::MANIFEST  #####################################################
+# NOTE: anticipated to be edited by end user ( in case some manifest records differ )
+# NOTE: used by script to "translate" from hardcoded (keys) to actual (values) properties of records from a manifest
+#       (only for the manifest properties describing supported configuration roles)
+#       (implemented as a separate dictionary because it doubles as source for verification of the script 'Role' parameter) 
+$SCRIPT:CONFIG:ManifestDictionarySupportedRoles = @{
+    ContentDelivery = 'Content Delivery (CD)';
+    ContentManagement = 'Content Management (CM)';
+    Processing = 'Processing';
+    CMAndProcessing = 'CM + Processing';
+    Reporting = 'Reporting'
+}
+# NOTE: anticipated to be edited by end user ( in case some manifest records differ )
+# NOTE: used by script to "translate" from hardcoded (keys) to actual (values) properties of records from a manifest 
+#       (other properties except of supported configuration roles) 
+$SCRIPT:CONFIG:ManifestDictionaryOther = @{
+    Product = 'Product Name';
+    FilePath = 'File Path';
+    ConfigFileName = 'Config file name';
+    ConfigType = 'Config Type';
+    SearchProviderUsed = 'Search Provider Used'
+}
+# NOTE: this dictionary ( combination of SCRIPT:CONFIG:ManifestDictionaryOther and SCRIPT:CONFIG:ManifestDictionarySupportedRoles )
+#       is being actually used in the code
+$SCRIPT:CONFIG:ManifestDictionary = $SCRIPT:CONFIG:ManifestDictionaryOther + $SCRIPT:CONFIG:ManifestDictionarySupportedRoles
+# CONFIGURATION::END ##########################################################
 
 # HELPERS ####################################################
+function Get-StandardizedSearchProviderNameOrNull {
+    param (
+        $SearchProviderName
+    )
+    foreach ($key in $SCRIPT:CONFIG:SearchProviderDictionary.Keys) {
+        if ($SCRIPT:CONFIG:SearchProviderDictionary[$key].Contains($SearchProviderName)) {
+            return $key
+        }
+    }
+    return $null
+}
+
 <#
 .Synopsis
     Strips a config file name from the registered extensions ( to allow matching config files from manifest and those on file system since there can be different combinations of extensions )
@@ -122,6 +168,27 @@ function Get-MatchingConfigFile {
     return $matchedConfigFile
 }
 
+function Change-FileExtension {
+    param (
+        $ConfigFile,
+        $TraceRecord,
+        $NewExtension
+    )
+
+    try {
+        $configFileName= Split-Path -Path $ConfigFile -Leaf
+        $newFileName = [System.IO.Path]::ChangeExtension($configFileName, $NewExtension)
+        Rename-Item -Path $ConfigFile -NewName $newFileName -ErrorAction Stop
+        $TraceRecord.ProcessingTrace += "Renamed '$ConfigFile' -> '$newFileName'"
+        $TraceRecord.Status = 'Disabled'
+    } catch {
+        $TraceRecord.ProcessingTrace += "$($_.Exception.Message)"
+        $TraceRecord.ProcessingTrace += "$($_.Exception.StackTrace)"
+        $TraceRecord.Status = 'Failed to disable'
+    } 
+    
+}
+
 function Do-DisableConfigFile {
     param (
         $ConfigFile,
@@ -132,7 +199,7 @@ function Do-DisableConfigFile {
         #TODO: try do remove disable extensions first ( and verify that what is left is enable extension)
         $configFileName= Split-Path -Path $ConfigFile -Leaf
         $newFileName = [System.IO.Path]::ChangeExtension($configFileName, $SCRIPT:CONFIG:DisabledFileExtensions[0])
-        Rename-Item -Path $ConfigFile -NewName $newFileName
+        Rename-Item -Path $ConfigFile -NewName $newFileName -ErrorAction Stop
         $TraceRecord.ProcessingTrace += "Renamed '$ConfigFile' -> '$newFileName'"
         $TraceRecord.Status = 'Disabled'
     } catch {
@@ -151,7 +218,7 @@ function Do-EnableConfigFile {
     try {
         $configFileName = Split-Path -Path $ConfigFile -Leaf
         $newFileName = [System.IO.Path]::ChangeExtension($configFileName, $SCRIPT:CONFIG:EnabledFileExtensions[0])
-        Rename-Item -Path $ConfigFile -NewName $newFileName
+        Rename-Item -Path $ConfigFile -NewName $newFileName -ErrorAction Stop
         $TraceRecord.ProcessingTrace += "Renamed '$ConfigFile' -> '$newFileName'"
         $TraceRecord.Status = 'Enabled'
     } catch {
@@ -174,26 +241,31 @@ function Process-ConfigFile {
         [Parameter(Mandatory=$true)]
         $Webroot,
         [Parameter(Mandatory=$true)]
-        [System.Xml.XmlElement]$ManifestRecord
+        $ManifestRecord
     )
 
-    $manifestRelativeFilePath = Join-Path -Path $ManifestRecord.FilePath -ChildPath $ManifestRecord.ConfigFileName
+    # $LOCAL is used for estetic purposes ( so that it is clear the variables are local to the function and easier to identify visually )
+    $LOCAL:MNFST:FilePath = $ManifestRecord | select -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['FilePath']
+    $LOCAL:MNFST:ConfigFileName = $ManifestRecord | select -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['ConfigFileName']
+    $LOCAL:MNFST:SearchProviderUsed = $ManifestRecord | select -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['SearchProviderUsed']
+    $LOCAL:MNFST:Role = $Role
+    $LOCAL:MNFST:RoleAction = $ManifestRecord | select -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary[$Role]
+    $LOCAL:MNFST:ManifestStr = $ManifestRecord | Out-String
+
+    $LOCAL:SEARCH:ManifestProvider = Get-StandardizedSearchProviderNameOrNull -SearchProviderName $LOCAL:MNFST:SearchProviderUsed
+    $LOCAL:SEARCH:TargetProvider = $SearchProvider 
+
+    $manifestRelativeFilePath = Join-Path -Path $LOCAL:MNFST:FilePath -ChildPath $LOCAL:MNFST:ConfigFileName
 
     $realConfigFile = Get-MatchingConfigFile -Webroot $Webroot -ManifestConfigFilePath $manifestRelativeFilePath 
     $realConfigFileName = Split-Path -Path $realConfigFile -Leaf
     $realConfigFileIsEnabled = ( $SCRIPT:CONFIG:EnabledFileExtensions.Contains([System.IO.Path]::GetExtension($realConfigFileName).ToLower()) )
 
-    # Clarifying if there is specific search provider associated with the manifest record
-    $manifestRecordSearchProvider = $null
-    $manifestRecordSearchProviderDisplayName = "NONE"
-    $manifestRecordSearchConfig = $ManifestRecord.SelectSingleNode('SearchProviderUsed')
-    if ($manifestRecordSearchConfig -ne $null) {
-        $manifestRecordSearchProvider = $manifestRecordSearchConfig.InnerText
-        $manifestRecordSearchProviderDisplayName = $manifestRecordSearchConfig.InnerText
-    }
+    $manifestRecordSearchProvider = $LOCAL:SEARCH:ManifestProvider
+    $manifestRecordSearchProviderDisplayName = $LOCAL:MNFST:SearchProviderUsed
 
     $traceRecord = new-object psobject -Property @{
-        ManifestRecord = $ManifestRecord.OuterXml;
+        ManifestRecord = $LOCAL:MNFST:ManifestStr;
         ManifestRelativePath = $manifestRelativeFilePath;
         ManifestSearchProvider = $manifestRecordSearchProviderDisplayName;
         RealConfigFile = $realConfigFile;
@@ -201,26 +273,33 @@ function Process-ConfigFile {
         Status = 'N\A'
     }
 
-    $roleConfigSetting = $ManifestRecord.SelectSingleNode($Role)
+    $roleConfigSetting = $LOCAL:MNFST:RoleAction
     if ($roleConfigSetting -eq $null) {
-        $msg = "Failed to read '$Role' configuration on the manifest record  ( '$($ManifestRecord.OuterXml)' )"
+        $msg = "Failed to read '$Role' configuration on the manifest record  [$($LOCAL:MNFST:ManifestStr)]"
         $traceRecord.Status = 'Failed'
         $traceRecord.ProcessingTrace += $msg
         return $traceRecord
     }
 
-    if ( ($manifestRecordSearchProvider -ne $null) -and ($manifestRecordSearchProvider.ToLower() -ne $SearchProvider.ToLower()) ) {
-        $traceRecord.ProcessingTrace += "The manifest record is for '$manifestRecordSearchProvider' search provider whereas target search provider for the operation is set to '$SearchProvider'. The configuration file needs to be disabled"
-        if ($PSCmdlet.ParameterSetName -eq 'Apply') {
-            Do-DisableConfigFile -ConfigFile $realConfigFile -TraceRecord $traceRecord
+    if ( ($manifestRecordSearchProvider.ToLower() -ne 'any') -and ($manifestRecordSearchProvider.ToLower() -ne $LOCAL:SEARCH:TargetProvider.ToLower()) ) {
+        if (-not $realConfigFileIsEnabled) {
+            # Search provider does not match the target search provider ( but the config file is already disabled )
+            $traceRecord.ProcessingTrace += " > File has to be ( and already is ) disabled due to mismatching search providers ( Target:'$($LOCAL:SEARCH:TargetProvider)'; Manifest:'$manifestRecordSearchProvider'). No further action required"
+            $traceRecord.Status = 'OK'
         } else {
-            $traceRecord.Status = 'Needs to be disabled'
+            # Search provider does not match the target search provider ( and the config file is still enabled - needs to be disabled )
+            $traceRecord.ProcessingTrace += "The manifest record is for '$manifestRecordSearchProvider' ($manifestRecordSearchProviderDisplayName) search provider whereas target search provider for the operation is set to '$($LOCAL:SEARCH:TargetProvider)'. The configuration file needs to be disabled"
+            if ($PSCmdlet.ParameterSetName -eq 'Apply') {
+                Do-DisableConfigFile -ConfigFile $realConfigFile -TraceRecord $traceRecord
+            } else {
+                $traceRecord.Status = 'Needs to be disabled'
+            }
         }
         return $traceRecord
     } 
 
     # Proceed if search provider is the same
-    switch ($roleConfigSetting.InnerText.ToLower()) {
+    switch ($roleConfigSetting.ToLower()) {
         "enable" {
             if (-not $realConfigFileIsEnabled) {
                 $traceRecord.ProcessingTrace += " > The configuration file is disabled ( has to be enabled as per manifest )"
@@ -287,9 +366,100 @@ function Trace {
         write-host $Message -ForegroundColor $messageColor
     }
 }
+
+<#
+.SYNOPSIS 
+    Accounting for situation when there are duplicate manifest records for the same file ( with different search providers )
+    Resolution: if there is - filter out manifest records where the search provider is different from the target search provider
+.INPUTS
+   Manifest (collection of manifest records)
+.OUTPUTS
+   Filtered manifest (collection of manifest records where duplicates have been removed)
+#>
+function Remove-DuplicateManifestEntries {
+    param (
+        $Manifest,
+        $TargetSearchProvider
+    )
+    #Find duplicate records
+    $ManifestGroupped = $Manifest | Group-Object -Property { Join-Path -Path ($_ | select -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['FilePath']) -ChildPath ($_ | select -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['ConfigFileName']) }
+
+    $ManifestDuplications = $ManifestGroupped | ? { $_.Count -gt 1 }
+    Trace -Warn "$($ManifestDuplications.Length) duplicate manifest records identified. Processing ..."
+    
+    $ExcludeList = @()
+
+    $processedCounter = 0
+    foreach ( $DuplicationGroup in $ManifestDuplications) {
+        $processedCounter += 1
+        Trace -Info "Processing #$processedCounter CONFIG:$($DuplicationGroup.Name)"
+        #If there are more than 2 duplicates - throw in a towel
+        if ($DuplicationGroup.Count -gt 2) {
+            throw "$($DuplicationGroup.Count) duplicates found for the '$($DuplicationGroup.Name)' configuration file. Cannot be resolved (is not anticipated by the design of the utility)"
+        }
+
+        $dupA = $DuplicationGroup.Group[0]
+        $dupB = $DuplicationGroup.Group[1]
+
+        $dupASearchProvider = $dupA | select -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['SearchProviderUsed']
+        $dupBSearchProvider = $dupB | select -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['SearchProviderUsed']
+        $dupASearchProviderResolved = Get-StandardizedSearchProviderNameOrNull -SearchProviderName $dupASearchProvider
+        $dupBSearchProviderResolved = Get-StandardizedSearchProviderNameOrNull -SearchProviderName $dupBSearchProvider
+        #Check if search providers are different
+        if ($dupASearchProviderResolved -ne $dupBSearchProviderResolved) {
+            if ($dupASearchProviderResolved -eq $TargetSearchProvider) {
+                $ExcludeList += $dupB
+                Trace -Info "Added to exclude list ( the record for the '$dupBSearchProvider' search provider)"
+                continue
+            } elseif ($dupBSearchProviderResolved -eq $TargetSearchProvider) {
+                $ExcludeList += $dupA
+                Trace -Info "Added to exclude list ( the record for the '$dupASearchProvider' search provider)"
+                continue
+            } else {
+                throw "Failed to process duplicate ( neither record matches target search provider : '$($TargetSearchProvider)'). Duplicate info: $DuplicationGroup"
+            }
+        } else {
+            #If search providers are the same - check for instructions
+            if ( (
+                  $dupA | select `
+                    $SCRIPT:CONFIG:ManifestDictionary['ContentDelivery'], `
+                    $SCRIPT:CONFIG:ManifestDictionary['ContentManagement'], `
+                    $SCRIPT:CONFIG:ManifestDictionary['Processing'], ` 
+                    $SCRIPT:CONFIG:ManifestDictionary['CMAndProcessing'], ` 
+                    $SCRIPT:CONFIG:ManifestDictionary['Reporting'] 
+                 ) -eq (
+                  $dupB | select `
+                    $SCRIPT:CONFIG:ManifestDictionary['ContentDelivery'], `
+                    $SCRIPT:CONFIG:ManifestDictionary['ContentManagement'], `
+                    $SCRIPT:CONFIG:ManifestDictionary['Processing'], ` 
+                    $SCRIPT:CONFIG:ManifestDictionary['CMAndProcessing'], ` 
+                    $SCRIPT:CONFIG:ManifestDictionary['Reporting'] 
+                ) ) {
+                Trace -Warn "There are two duplicate records for the '$($DuplicationGroup.Name)' configuration file with identical settings."
+            } else {
+                Trace -Warn "There are two duplicate records for the '$($DuplicationGroup.Name)' configuration file with different settings."
+            }
+            throw "Failed to resolve ambiguity ( recommended to edit manifest file as per above messages )"
+        }
+    }
+
+    return $Manifest | ? { $ExcludeList -notcontains $_ }
+}
+
 # END: HELPERS ###############################################
 
-
+#Validate $Role
+if (-not($SCRIPT:CONFIG:ManifestDictionarySupportedRoles.ContainsKey($Role))) {
+    Write-Warning "'$Role'is not supported configuration role. Supported configuration roles list is:"
+    Write-Warning $SCRIPT:CONFIG:ManifestDictionarySupportedRoles.Keys
+    return
+}
+#Validate $SearchProvider
+if (-not($SCRIPT:CONFIG:SearchProviderDictionary.ContainsKey($SearchProvider))) {
+    Write-Warning "'$SearchProvider' is not supported search provider. Supported search providers list is:"
+    Write-Warning $SCRIPT:CONFIG:SearchProviderDictionary.Keys
+    return 
+}
 
 if (-not(Test-Path $Webroot -PathType Container)) {
     throw "'$Webroot' webroot folder not found"
@@ -303,11 +473,25 @@ if (-not(Test-Path -Path $ConfigurationManifest -PathType Leaf)) {
     throw "Failed to find configuration manifest '$ConfigurationManifest'"
 }
 
-$sconfig = [xml](gc $ConfigurationManifest)
+$sconfig = Import-Csv $ConfigurationManifest
 
 $executionTrace = @()
 $traceRecord = $null
-$sconfig.SelectNodes($SCRIPT:CONFIG:ManifestDefinitionsXPath) | % { 
+
+$sconfigOrig = $sconfig
+$sconfig = Remove-DuplicateManifestEntries -Manifest $sconfig -TargetSearchProvider $SearchProvider
+
+if ($sconfigOrig -ne $sconfig) {
+    Trace -Highlight "Listing removed entries"
+    foreach ($record in $sconfigOrig) {
+        if ($sconfig -notcontains $record) {
+            $record | Out-String | Write-Host
+        }
+    }
+}
+
+Trace -Highlight "Processing manifest"
+$sconfig | % { 
     try {
         if ($PSCmdlet.ParameterSetName -eq 'Verify') { 
             $traceRecord = Process-ConfigFile -Verify -Role $Role -SearchProvider $SearchProvider -Webroot $Webroot -ManifestRecord $_
