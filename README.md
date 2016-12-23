@@ -9,20 +9,19 @@ Consider this an alpha version. The script is to be further developed should it 
 
 # Concepts
 
-- Manifest : XML file containing information on which default Sitecore configuration files have to be enabled / disabled for particular role. The manifest XML file is manually generated from the Excel document available at doc.sitecore.net website. 
-  - The assets used to generate a manifest are available in the **./manifest** folder
+- Manifest : CSV file containing information on which default Sitecore configuration files have to be enabled / disabled for particular role. The manifest CSV file is manually generated from the Excel document available at doc.sitecore.net website. 
+  - The CSV manifest can be obtained from xlsx Excel file using standard Excel capabilities ( by copying only the data, pasting it in a new Excel document and saving as CSV file )
 
 - The scripts allow to:
-  - Inspect a manifest ( to find out list of defined configuration roles / search providers ) : **sc-view-manifest.ps1**
   - Apply / Verify a manifest against a Sitecore instance ( using path to the instance webroot folder ): **sc-config.ps1**
 
 # Examples
 - Inspecting a manifest file:
-  - `.\sc-view-manifest.ps1 -ManifestFilePath .\manifest\sc-config-manifest-81u3.xml`
+  - `.\sc-view-manifest.ps1 -ManifestFilePath .\manifest\sc-config-manifest-81u3.csv`
 
 - Verify a Sitecore instance against a manifest file: 
   - Persist execution result to the $resultList variable ( collection ) [ trace is still generated during the execution ]
-    - `$resultList = .\sc-config.ps1 -Verify -Role ContentDelivery -SearchProvider Lucene -ConfigurationManifest .\manifest\sc-config-manifest-81u3.xml -Webroot C:\inetpub\wwwroot\sc81u3.sup\Website`
+    - `$resultList = .\sc-config.ps1 -Verify -Role ContentDelivery -SearchProvider Lucene -ConfigurationManifest .\manifest\sc-config-manifest-81u3.csv -Webroot C:\inetpub\wwwroot\sc81u3.sup\Website`
   - Review statuses produced by the script
     - `$resultList | select -ExpandProperty Status | sort | Get-Unique`
   - Number of files that need to be modified ( enabled or disabled )
@@ -34,6 +33,6 @@ Consider this an alpha version. The script is to be further developed should it 
 
 - Apply a manifest to a Sitecore instance
   - Persist execution result to the $changeList variable ( collection ) [ trace is still generated during the execution ]
-    - `$changeList = .\sc-config.ps1 -ApplyManifest -Role ContentDelivery -SearchProvider Lucene -ConfigurationManifest .\manifest\sc-config-manifest-81u3.xml -Webroot C:\inetpub\wwwroot\sc81u3.sup\Website`
+    - `$changeList = .\sc-config.ps1 -ApplyManifest -Role ContentDelivery -SearchProvider Lucene -ConfigurationManifest .\manifest\sc-config-manifest-81u3.csv -Webroot C:\inetpub\wwwroot\sc81u3.sup\Website`
   - Review statuses produced by the execution
     - `$changeList | select -ExpandProperty Status | sort | Get-Unique`
