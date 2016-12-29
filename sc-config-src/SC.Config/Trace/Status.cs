@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SC.Config
+namespace SC.Config.Trace
 {
   public enum Status
   {

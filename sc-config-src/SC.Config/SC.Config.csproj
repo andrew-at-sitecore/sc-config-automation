@@ -50,8 +50,8 @@
     <Compile Include="Manifest\Action.cs" />
     <Compile Include="Manifest\ManifestRecord.cs" />
     <Compile Include="Manifest\SearchProvider.cs" />
-    <Compile Include="Status.cs" />
-    <Compile Include="TraceRecord.cs" />
+    <Compile Include="Trace\Status.cs" />
+    <Compile Include="Trace\TraceRecord.cs" />
     <Compile Include="UseManifestRecordCmdlet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
