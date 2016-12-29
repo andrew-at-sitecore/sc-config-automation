@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GetManifestActionCmdlet.cs" />
     <Compile Include="GetManifestRecordCmdlet.cs" />
     <Compile Include="GetSearchProviderCmdlet.cs" />
     <Compile Include="Manifest\Action.cs" />

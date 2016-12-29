@@ -9,7 +9,6 @@ namespace SC.Config.Manifest
   public enum Action
   {
     Enable,
-    Disable,
-    NA
+    Disable
   }
 }

@@ -13,6 +13,7 @@ namespace SC.Config
   public class GetSearchProviderCmdlet: Cmdlet
   {
     [Parameter(Mandatory =true)]
+    [AllowEmptyString]
     public string SearchProviderDescription { get; set; }
     [Parameter(Mandatory =true)]
     public string[] LuceneProviderDescriptionSet { get; set; }

@@ -33,5 +33,21 @@ namespace SC.Config
     public string ConfigFileName { get; set; }
     [Parameter(Mandatory = true)]
     public string ConfigType { get; set; }
+
+    protected override void ProcessRecord()
+    {
+      WriteObject(new ManifestRecord() {
+        SearchProviderUsed = this.SearchProviderUsed,
+        ContentDeliveryAction = this.ContentDeliveryAction,
+        ContentManagementAction = this.ContentManagementAction,
+        ProcessingAction = this.ProcessingAction,
+        CMAndProcessingAction = this.CMAndProcessingAction,
+        ReportingAction = this.ReportingAction,
+        ProductName = this.ProductName,
+        FilePath = this.FilePath,
+        ConfigFileName = this.ConfigFileName,
+        ConfigType = this.ConfigType
+      });
+    }
   }
 }
