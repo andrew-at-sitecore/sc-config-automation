@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -18,5 +19,13 @@ namespace SC.Config.Manifest
     public string ConfigFileName { get; set; }
     public string ConfigType { get; set; }
     public SearchProvider SearchProviderUsed { get; set; }
+
+    public string RelativeFilePath
+    {
+      get
+      {
+        return Path.Combine(this.FilePath, this.ConfigFileName);
+      }
+    }
   }
 }
