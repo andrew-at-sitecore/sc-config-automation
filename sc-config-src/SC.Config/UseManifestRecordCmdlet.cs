@@ -1,4 +1,5 @@
 ﻿using SC.Config.Manifest;
+using SC.Config.Trace;
 using System;
 using System.Collections.Generic;
 using System.Linq;
