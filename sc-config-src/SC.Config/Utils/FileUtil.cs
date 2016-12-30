@@ -5,15 +5,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
+using SC.Config.Trace;
 
 namespace SC.Config.Utils
 {
   public class FileUtil
   {
-    public static string TryGetMatchingConfigFile(string webrootFullPath, string manifestRelativeLocationPath, string manifestConfigFileName, string[] configDisabledExtensions, string[] configEnabledExtensions)
+    public List<string> SCDisabledConfigExtensions { get; private set; }
+    public List<string> SCEnabledConfigExtensions { get; private set; }
+    public FileUtil(string[] scDisabledConfigExtensions, string[] scEnabledConfigExtensions) {
+      SCDisabledConfigExtensions = new List<string>(scDisabledConfigExtensions);
+      SCEnabledConfigExtensions = new List<string>(scEnabledConfigExtensions);
+    }
+
+    public string TryGetMatchingConfigFile(string webrootFullPath, string manifestRelativeLocationPath, string manifestConfigFileName)
     {
       var manifestFilePath = Path.Combine(manifestRelativeLocationPath, manifestConfigFileName);
-      var configFileBaseName = GetExtentionlessConfigFileName(manifestConfigFileName, configDisabledExtensions, configEnabledExtensions);
+      var configFileBaseName = GetExtentionlessConfigFileName(manifestConfigFileName);
 
       //A bit of trickery to
       //  - remove '\website' or 'website' entry from the manifest ( since the script operates in the context of webroot folder )
@@ -34,7 +42,7 @@ namespace SC.Config.Utils
       var targetConfigFileCandidates = Directory.GetFiles(configFileLocationPath, configFileBaseSearchPath);
       foreach ( var candidateConfigFile in targetConfigFileCandidates) {
         var candidateFileName = Path.GetFileName(candidateConfigFile);
-        var candidateBaseFileName = GetExtentionlessConfigFileName(candidateFileName, configDisabledExtensions, configEnabledExtensions);
+        var candidateBaseFileName = GetExtentionlessConfigFileName(candidateFileName);
 
         if (candidateBaseFileName.Equals(configFileBaseName, StringComparison.CurrentCultureIgnoreCase)) {
           //The match had been found
@@ -50,7 +58,7 @@ namespace SC.Config.Utils
       return matchedConfigFile;
     }
 
-    public static string GetExtentionlessConfigFileName(string configFileName, string[] configDisabledExtensions, string[] configEnabledExtensions)
+    public string GetExtentionlessConfigFileName(string configFileName)
     {
       var fileNameElements = configFileName.Trim().Split('.');
 
@@ -60,8 +68,8 @@ namespace SC.Config.Utils
         //each iteration tries to match element as an extension
         var extensionMatched = false;
         var currentIterationFileNameSegment = $".{fileNameElements[i].ToLower()}";
-        if ( configDisabledExtensions.Contains(currentIterationFileNameSegment)) { extensionMatched = true; }
-        if ( configEnabledExtensions.Contains(currentIterationFileNameSegment)) { extensionMatched = true; }
+        if ( this.SCDisabledConfigExtensions.Contains(currentIterationFileNameSegment)) { extensionMatched = true; }
+        if ( this.SCEnabledConfigExtensions.Contains(currentIterationFileNameSegment)) { extensionMatched = true; }
 
         if ( ! extensionMatched ) {
           //if no extension can be matched from the "tail" - what's left is to be considered the config file base name
@@ -73,5 +81,21 @@ namespace SC.Config.Utils
       var extentionlessFileNameSegments = new ArraySegment<string>(fileNameElements, 0, cutoffElementIndex);
       return String.Join(".", extentionlessFileNameSegments.ToArray());
     }
+
+    public void TryDisableConfigFile(string configFileFullPath)
+    {
+      throw new NotImplementedException();
+    }
+
+    public void TryEnableConfigFile(string configFileFullPath)
+    {
+      throw new NotImplementedException();
+    }
+
+    private void TryChangeFileExtension(string configFileFullPath)
+    {
+      throw new NotImplementedException();
+    }
+
   }
 }

@@ -14,5 +14,11 @@ namespace SC.Config.Trace
     public string RealConfigFilePath { get; set; }
     public List<string> ProcessingTrace { get; set; }
     public Status Status { get; set; }
+    public string StatusDetails { get; set; }
+
+    public TraceRecord()
+    {
+      ProcessingTrace = new List<string>();
+    }
   }
 }

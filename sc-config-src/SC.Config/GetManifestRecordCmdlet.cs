@@ -14,6 +14,8 @@ namespace SC.Config
   public class GetManifestRecordCmdlet : Cmdlet
   {
     [Parameter(Mandatory = true)]
+    public Manifest.Action CurrentAction { get; set; }
+    [Parameter(Mandatory = true)]
     public SearchProvider SearchProviderUsed { get; set; }
     [Parameter(Mandatory =true)]
     public Manifest.Action ContentDeliveryAction { get; set; }
@@ -37,7 +39,8 @@ namespace SC.Config
     protected override void ProcessRecord()
     {
       WriteObject(new ManifestRecord() {
-        SearchProviderUsed = this.SearchProviderUsed,
+        CurrentAction = this.CurrentAction,
+        SearchProvider = this.SearchProviderUsed,
         ContentDeliveryAction = this.ContentDeliveryAction,
         ContentManagementAction = this.ContentManagementAction,
         ProcessingAction = this.ProcessingAction,

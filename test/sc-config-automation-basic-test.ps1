@@ -12,7 +12,8 @@ $sp = Get-SearchProvider `
     -AnyProviderDescriptionSet @('')
 
 $m = Get-ManifestRecord `
-    -SearchProviderUsed $sp `
+    -CurrentAction           $mr.$Role
+    -SearchProviderUsed      $sp `
     -ContentDeliveryAction   (Get-ManifestAction -ManifestActionDescription $mr.'Content Delivery (CD)'   -EnableActionDescriptions $SCRIPT:CONFIG:EnableActionDescriptions -DisableActionDescriptions $SCRIPT:CONFIG:DisableActionDescriptions) `
     -ContentManagementAction (Get-ManifestAction -ManifestActionDescription $mr.'Content Management (CM)' -EnableActionDescriptions $SCRIPT:CONFIG:EnableActionDescriptions -DisableActionDescriptions $SCRIPT:CONFIG:DisableActionDescriptions) `
     -ProcessingAction        (Get-ManifestAction -ManifestActionDescription $mr.'Processing'              -EnableActionDescriptions $SCRIPT:CONFIG:EnableActionDescriptions -DisableActionDescriptions $SCRIPT:CONFIG:DisableActionDescriptions) `

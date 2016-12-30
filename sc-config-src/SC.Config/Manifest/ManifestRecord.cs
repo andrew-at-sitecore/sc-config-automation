@@ -18,7 +18,8 @@ namespace SC.Config.Manifest
     public string FilePath { get; set; }
     public string ConfigFileName { get; set; }
     public string ConfigType { get; set; }
-    public SearchProvider SearchProviderUsed { get; set; }
+    public SearchProvider SearchProvider { get; set; }
+    public Manifest.Action CurrentAction { get; set; }
 
     public string RelativeFilePath
     {

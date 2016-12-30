@@ -10,6 +10,7 @@ namespace SC.Config.Trace
   {
     OK,
     FAIL,
-    ACTION
+    ACTION,
+    NA
   }
 }
