@@ -11,12 +11,14 @@ namespace SC.Config
   [OutputType(typeof(Manifest.Action))]
   public class GetManifestActionCmdlet: Cmdlet
   {
-    [Parameter(Mandatory =true)]
+    [Parameter(Mandatory = true)]
     public string ManifestActionDescription { get; set; }
     [Parameter(Mandatory = true)]
     public string[] EnableActionDescriptions { get; set; }
     [Parameter(Mandatory = true)]
     public string[] DisableActionDescriptions { get; set; }
+    [Parameter(Mandatory = true)]
+    public string[] NAActionDescriptions { get; set; }
 
     protected override void ProcessRecord()
     {

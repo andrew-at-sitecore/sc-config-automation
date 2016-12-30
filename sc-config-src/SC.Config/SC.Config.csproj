@@ -50,6 +50,7 @@
     <Compile Include="Manifest\Action.cs" />
     <Compile Include="Manifest\ManifestRecord.cs" />
     <Compile Include="Manifest\SearchProvider.cs" />
+    <Compile Include="SitecoreRole.cs" />
     <Compile Include="Trace\Status.cs" />
     <Compile Include="Trace\TraceRecord.cs" />
     <Compile Include="UseManifestRecordCmdlet.cs" />

@@ -84,17 +84,23 @@ namespace SC.Config.Utils
 
     public void TryDisableConfigFile(string configFileFullPath)
     {
-      throw new NotImplementedException();
+      TryChangeFileExtension(configFileFullPath, this.SCDisabledConfigExtensions[0]);
     }
 
     public void TryEnableConfigFile(string configFileFullPath)
     {
-      throw new NotImplementedException();
+      TryChangeFileExtension(configFileFullPath, this.SCEnabledConfigExtensions[0]);
     }
 
-    private void TryChangeFileExtension(string configFileFullPath)
+    private void TryChangeFileExtension(string configFileFullPath, string newExtension)
     {
-      throw new NotImplementedException();
+      var configFileName = Path.GetFileName(configFileFullPath);
+      var configFileNameExtensionless = GetExtentionlessConfigFileName(configFileName);
+
+      var newConfigFileName = $"{configFileNameExtensionless}.{newExtension}";
+      var newConfigFileFullPath = Path.Combine(Path.GetDirectoryName(configFileFullPath), newConfigFileName);
+
+      File.Move(configFileFullPath, newConfigFileFullPath);
     }
 
   }
