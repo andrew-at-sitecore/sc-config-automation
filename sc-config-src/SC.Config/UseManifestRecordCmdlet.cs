@@ -25,13 +25,13 @@ namespace SC.Config
     [Parameter(Mandatory = true)]
     public ManifestRecord ManifestRecord { get; set; }
     [Parameter(Mandatory = true)]
-    public string[] SCDisabledExtensionsList { get; set; }
+    public string[] SCDisableExtensionsList { get; set; }
     [Parameter(Mandatory = true)]
-    public string[] SCEnabledExtensionsList { get; set; }
+    public string[] SCEnableExtensionsList { get; set; }
 
     protected void TryProcessRecord(TraceRecord traceRecord)
     {
-      var fileUtil = new FileUtil(this.SCDisabledExtensionsList, this.SCEnabledExtensionsList);
+      var fileUtil = new FileUtil(this.SCDisableExtensionsList, this.SCEnableExtensionsList);
 
       var realConfigFileFullPath = fileUtil.TryGetMatchingConfigFile(this.Webroot, this.ManifestRecord.FilePath, this.ManifestRecord.ConfigFileName);
       traceRecord.RealConfigFilePath = realConfigFileFullPath;
@@ -40,7 +40,7 @@ namespace SC.Config
 
       //Case insensitive extension check. If the extension is not in "enabled" it is in "disabled"
       //    In fact - the only enabled extension is .config ( but the implementation was done for more generic case )
-      var realConfigFileIsEnabled = this.SCEnabledExtensionsList.Select(x => x.ToLower()).Contains(Path.GetExtension(realConfigFileName).ToLower());
+      var realConfigFileIsEnabled = this.SCEnableExtensionsList.Select(x => x.ToLower()).Contains(Path.GetExtension(realConfigFileName).ToLower());
 
       if ((this.TargetSearchProvider != SearchProvider.Any) &&
             (this.ManifestRecord.SearchProvider != this.TargetSearchProvider))

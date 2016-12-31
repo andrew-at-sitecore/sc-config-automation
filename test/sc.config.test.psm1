@@ -59,7 +59,6 @@ function Run-Test {
     "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" | out-host
 
     $m = Get-ManifestRecord `
-        -RawManifestData         $mrdata `
         -Action                  $action `
         -SearchProviderUsed      $sp `
         -FilePath                $mr.'File Path' `
