@@ -25,12 +25,12 @@ namespace SC.Config.Utils
 
       //A bit of trickery to
       //  - remove '\website' or 'website' entry from the manifest ( since the script operates in the context of webroot folder )
-      var adjustedConfigFileRelativePath = Regex.Replace(manifestRelativeLocationPath, "^\\?website", "");
+      var adjustedConfigFileRelativePath = Regex.Replace(manifestRelativeLocationPath, @"^\\?website", "");
       //  - add '.*' to config file base name ( to get file system search pattern )
       var configFileBaseSearchPath = $"{configFileBaseName}.*";
       //As a result we end up with '\relative\path\file.base.name.*' ( so that later on we can get all files from file system, get their base names and fetch the one that corresponds to the manifest entry )
 
-      var configFileLocationPath = Path.Combine(webrootFullPath, adjustedConfigFileRelativePath);
+      var configFileLocationPath = Path.Combine(webrootFullPath, adjustedConfigFileRelativePath.TrimStart('/', '\\'));
 
       //Check that target location exists
       if (!Directory.Exists(configFileLocationPath)) {
@@ -67,14 +67,17 @@ namespace SC.Config.Utils
       for ( var i=-1; i > (fileNameElements.Length * -1); i-- ) {
         //each iteration tries to match element as an extension
         var extensionMatched = false;
-        var currentIterationFileNameSegment = $".{fileNameElements[i].ToLower()}";
+        var lastFileNameBlockIndex = fileNameElements.Length + i;
+        var currentIterationFileNameSegment = $".{fileNameElements[lastFileNameBlockIndex].ToLower()}";
         if ( this.SCDisabledConfigExtensions.Contains(currentIterationFileNameSegment)) { extensionMatched = true; }
         if ( this.SCEnabledConfigExtensions.Contains(currentIterationFileNameSegment)) { extensionMatched = true; }
 
         if ( ! extensionMatched ) {
           //if no extension can be matched from the "tail" - what's left is to be considered the config file base name
-          cutoffElementIndex = fileNameElements.Length + i; //$i is negative since the collection had been processed from the "tail"
           break;
+        } else  {
+          //if extension IS matched - "shifting" cutoff index one position to the left
+          cutoffElementIndex = fileNameElements.Length + i; //$i is negative since the collection had been processed from the "tail"
         }
       }
 

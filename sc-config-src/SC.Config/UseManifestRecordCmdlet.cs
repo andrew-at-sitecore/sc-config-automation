@@ -15,9 +15,8 @@ namespace SC.Config
   [OutputType(typeof(TraceRecord))]
   public class UseManifestRecordCmdlet : PSCmdlet
   {
-    public bool Apply { get; set; }
-    [Parameter(Mandatory = true)]
-    public string Role { get; set; }
+    [Parameter()]
+    public SwitchParameter Apply { get; set; }
     [Parameter(Mandatory = true)]
     public SearchProvider TargetSearchProvider { get; set; }
     [Parameter(Mandatory = true)]
@@ -48,15 +47,14 @@ namespace SC.Config
         if (!realConfigFileIsEnabled)
         {
           //Search provider does not match the target search provider ( but the config file is already disabled )
-          traceRecord.ProcessingTrace.Add($" > File has to be ( and already is ) disabled due to mismatching search providers ( Target:'{this.TargetSearchProvider}'; Manifest:'{this.ManifestRecord.SearchProvider}'). No further action required");
+          traceRecord.ProcessingTrace.Add($"File has to be ( and already is ) disabled due to mismatching search providers ( Target:'{this.TargetSearchProvider}'; Manifest:'{this.ManifestRecord.SearchProvider}'). No further action required");
+          traceRecord.StatusDetails = "File has to be ( and already is ) disabled due to mismatching search providers";
           traceRecord.Status = Status.OK;
         }
         else
         {
           //Search provider does not match the target search provider ( and the config file is still enabled - needs to be disabled )
           traceRecord.ProcessingTrace.Add($"The manifest record is for '{this.ManifestRecord.SearchProvider}' search provider whereas target search provider for the operation is '{this.TargetSearchProvider}'. The configuration file needs to be disabled");
-          //switch (ParameterSetName)
-          //{
           if (this.Apply)
           {
             fileUtil.TryDisableConfigFile(realConfigFileFullPath);
@@ -94,7 +92,7 @@ namespace SC.Config
           else // IF file has to be ENABLED and already IS ENABLED
           {
             traceRecord.Status = Status.OK;
-            traceRecord.ProcessingTrace.Add(" > File has to be ( and already is ) enabled. No further action required");
+            traceRecord.StatusDetails = "File has to be ( and already is ) enabled. No further action required";
           }
           break;
 
@@ -110,13 +108,13 @@ namespace SC.Config
             }
           } else { // IF file has to be DISABLED and already IS DISABLED
             traceRecord.Status = Status.OK;
-            traceRecord.ProcessingTrace.Add(" > File has to be ( and already is ) disabled. No further action required");
+            traceRecord.StatusDetails = "File has to be ( and already is ) disabled. No further action required";
           }
           break;
 
         case Manifest.Action.NA:
           traceRecord.Status = Status.OK;
-          traceRecord.ProcessingTrace.Add(" > The current role does not demand the file to be disabled or enabled ( config file is not being used in this configuration ). No action is to be performed");
+          traceRecord.StatusDetails = "The current role does not demand the file to be disabled or enabled ( config file is not being used in this configuration ). No action is to be performed";
           break;
       }
     }
@@ -140,7 +138,7 @@ namespace SC.Config
       {
         traceRecord.Status = Status.FAIL;
         traceRecord.StatusDetails = ex.Message;
-        traceRecord.ProcessingTrace.Add(ex.Message);
+        traceRecord.ProcessingTrace.Add(ex.StackTrace);
         WriteObject(traceRecord);
       }
 

@@ -28,8 +28,9 @@ namespace SC.Config
       } else if (DisableActionDescriptions.Contains(ManifestActionDescription))
       {
         WriteObject(Manifest.Action.Disable);
-      } else
-      {
+      } else if (NAActionDescriptions.Contains(ManifestActionDescription)) {
+        WriteObject(Manifest.Action.NA);
+      } else {
         throw new Exception($"Failed to resolve manifest action by the action description : '{ManifestActionDescription}'");
       }
     }

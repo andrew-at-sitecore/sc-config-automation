@@ -92,10 +92,10 @@ function Trace {
 
     $timestamp = "[{0}] " -f (get-date -Format 'HH:mm:ss'),$Message
 
-    write-host $timestamp -NoNewline
-    if ($PSCmdlet.ParameterSetName -eq 'Verbose') {
-        write-verbose $Message
+    if ($PSCmdlet.ParameterSetName -eq 'Info') {
+        write-verbose ( "{0} {1}" -f ($timestamp,$Message) )
     } else {
+        write-host $timestamp -NoNewline
         write-host $Message -ForegroundColor $messageColor
     }
 }
@@ -241,8 +241,8 @@ param (
     $sconfig = (Import-Csv $ConfigurationManifest ) | Group-Object `
         -Property { 
             Join-Path `
-                -Path      ($_ | select -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['FilePath']) `
-                -ChildPath ($_ | select -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['ConfigFileName']) 
+                -Path      ($_ | Select-Object -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['FilePath']) `
+                -ChildPath ($_ | Select-Object -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['ConfigFileName']) 
         }
 
     $executionTrace = @()
@@ -254,19 +254,19 @@ param (
             $manifestRecordData = Resolve-ManifestRecord -ManifestRecordGroup $_ -SearchProvider $SearchProvider
             
             # Determining the action to be applied ( as per the specified configuration role )
-            $currentAction = Resolve-Action -ActionDesc ( $manifestRecordData | select -ExpandProperty $SCRIPT:CONFIG:ManifestRolesMapping[$Role] )
+            $manifestRoleDesc = $SCRIPT:CONFIG:ManifestRolesMapping[$Role]
+            $currentAction = Resolve-Action -ActionDesc ( $manifestRecordData."$manifestRoleDesc" )
             Trace -Info "Current action resolved to '$currentAction'"
 
             # "Translating" the manifest record data to the object being used by .NET cmdlets
             $manifestRecord = Get-ManifestRecord `
                 -Action             $currentAction `
                 -SearchProviderUsed $SearchProvider `
-                -FilePath           ( $manifestRecordData | select -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['FilePath'] ) `
-                -ConfigFileName     ( $manifestRecordData | select -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['FilePath'] )  
+                -FilePath           ( $manifestRecordData | Select-Object -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['FilePath'] ) `
+                -ConfigFileName     ( $manifestRecordData | Select-Object -ExpandProperty $SCRIPT:CONFIG:ManifestDictionary['ConfigFileName'] )  
 
             $traceRecord = Use-ManifestRecord `
                 -Apply:$Apply `
-                -Role                     $Role `
                 -TargetSearchProvider     $SearchProvider `
                 -Webroot                  $Webroot `
                 -ManifestRecord           $manifestRecord `
@@ -285,7 +285,8 @@ param (
                 }
             }
         } catch { 
-            Trace -Err -Message $_.Exception.Message 
+            Trace -Err -Message $_.Exception.Message
+            $_.Exception | Write-Error
         } 
     }
 
