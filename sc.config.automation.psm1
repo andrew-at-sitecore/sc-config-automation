@@ -212,9 +212,10 @@ function Use-Manifest {
 param (
     [switch]$Apply,
     [Parameter(Mandatory=$true)]
-    [SC.Config.SitecoreRole[]]$Role = [System.Enum]::GetValues([SC.Config.SitecoreRole]),
+    [SC.Config.SitecoreRole]$Role,
     [Parameter(Mandatory=$true)]
-    [SC.Config.Manifest.SearchProvider[]]$SearchProvider = [System.Enum]::GetValues([SC.Config.Manifest.SearchProvider]),
+    [ValidateSet('Lucene', 'SOLR')]
+    [SC.Config.Manifest.SearchProvider]$SearchProvider,
     [Parameter(Mandatory=$true)]
     $Webroot,
     [Parameter(Mandatory=$true)]
