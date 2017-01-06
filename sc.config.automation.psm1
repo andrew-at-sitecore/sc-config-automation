@@ -275,7 +275,7 @@ param (
 
             if ($traceRecord -ne $null) {
                 $executionTrace += $traceRecord
-                $screenMsg = "[$($traceRecord.Status)][$($traceRecord.StatusDetails)] $($traceRecord.RealConfigFile)"
+                $screenMsg = "[$($traceRecord.Status)][$($traceRecord.StatusDetails)] $($traceRecord.RealConfigFilePath)"
                 if ($traceRecord.Status -eq [SC.Config.Trace.Status]::FAIL ) {
                     Trace -Err $screenMsg 
                 } elseif ($traceRecord.Status -eq [SC.Config.Trace.Status]::ACTION ) {
